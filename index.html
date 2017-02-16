@@ -1,0 +1,262 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>reveal.js</title>
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>Cours 2</section>
+				<section>
+					<h4>Rappel</h4>
+					<p>Paul Guichon</p>
+					<p><a>paul.guichon@iedparis8.net</a></p>
+					<p>Sujet du mail doit commencer par [bdd l2]</p>
+					<p><a href="https://github.com/pguichon">https://github.com/pguichon</a></p>
+					<p>Bâtiment D bureau 238 (deuxième étage droite)</p>
+				</section>
+				<section>
+					<h4>Récapitulatif</h4>
+					<ul>
+						<li>CREATE TABLE</li>
+						<li>DELETE TABLE</li>
+						<li>INSERT</li>
+						<li>SELECT</li>
+					</ul>
+
+				</section>
+				<section>
+					<h4>Base de donnée relationnelle</h4>
+					<p>Une bassé de donnée stocke des données et les relations entre elles</p>
+				</section>
+				<section>
+					<h4>Modélisation</h4>
+					<p>Un client posséde une adresse postale et une adresse de facturation qui peut être différente</p>
+					<p>Comment modéliser cette demande</p>
+				</section>
+				<section>
+					<h4>Notion d'atome et d'objet</h4>
+					<ul>
+						<li>Un atome est une donnée indivisible</li>
+						<li>Un objet est un ensemble d'atome indivisible</li>
+						<li>Un objet => une table</li>
+						<li>Un atome => un colonne de table</li>
+					</ul>
+				</section>
+				<section>
+					<h4>Clients</h4>
+					<table>
+						<thead>
+							<tr>
+								<th>id</th>
+								<th>nom</th>
+								<th>prenom</th>
+								<th>email</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>1</td>
+								<td>Dupond</td>
+								<td>Paul</td>
+								<td>dupond.paul@machin.fr</td>
+							</tr>
+
+						</tbody>
+					</table>
+				</section>
+				<section>
+					<h4>Adresses</h4>
+					<table>
+						<thead>
+						<tr>
+							<th>id</th>
+							<th>label</th>
+							<th>code_postal</th>
+							<th>ville</th>
+							<th>pays</th>
+						</tr>
+						</thead>
+						<tbody>
+						<tr>
+							<td>1</td>
+							<td>75 rue vaugirard</td>
+							<td>75015</td>
+							<td>paris</td>
+							<td>France</td>
+						</tr>
+
+						</tbody>
+					</table>
+				</section>
+				<section>
+					<h4>Le SQL pour la création de clients</h4>
+					<pre>
+						<code class="sql" data-trim >
+							CREATE TABLE IF NOT EXISTS clients(
+							id INTEGER AUTOINCREMENT,
+							nom TEXT,
+							prenom TEXT,
+							email TEXT,
+							PRIMARY KEY(id),
+							UNIQUE(email));
+						</code>
+					</pre>
+				</section>
+				<section>
+					<h4>Le SQL pour la création d'adresses</h4>
+					<pre>
+						<code class="sql" data-trim >
+							CREATE TABLE IF NOT EXISTS adresses(
+							id INTEGER, -- Pour rappel AUTOINCREMENT est actif sous sqlite pour une primary keys int
+							label TEXT,
+							code_postal TEXT,
+							ville TEXT,
+							pays TEXT,
+							PRIMARY KEY(id),
+						</code>
+					</pre>
+				</section>
+				<section>
+					<h4>Comment établir les relations ?</h4>
+					<ul>
+						<li>Un individu posséde des adresses</li>
+						<li>Le nombre de chaque object permet de déterminer le type de relation</li>
+						<li>1 client ---> n adresses</li>
+						<li>On parle d'une relation 1 -> n</li>
+					</ul>
+				</section>
+				<section>
+					<p>La representation inverse les nombres </p>
+					<p>client (n) <------ (1) adresses</p>
+				</section>
+				<section>
+					<h4>Et en SQL ?</h4>
+					<p>Pour une relation 1 n on va utiliser les FOREIGN KEY et la représentation va nous aider à déterminer où elle doit se trouver</p>
+				</section>
+				<section>
+					<h4>FOREINGN KEY</h4>
+					<p>Une FOREIGN KEY est un champ qui va contenir la valeur d'une PRIMARY KEY d'une autre table</p>
+					<p>Dans l'exemple le (1) de adresses indique que c'est la table adresses qui doit contenir la FOREIGN KEY</p>
+					<p>Par convention lorsque c'est possible on va nommer ce champ {table}_id </p>
+				</section>
+				<section>
+					<h4>Le SQL qui va bien :</h4>
+					<pre>
+						<code class="sql" data-trim >
+							CREATE TABLE IF NOT EXISTS adresses(
+							id INTEGER,
+							client_id INTEGER,
+							label TEXT,
+							code_postal TEXT,
+							ville TEXT,
+							pays TEXT,
+							PRIMARY KEY(id),
+							FOREIGN KEY(client_id) REFERENCES clients(id));
+						</code>
+					</pre>
+				</section>
+				<section>
+					<h4>Les contraintes</h4>
+					<ul>
+						<li>PRIMARY KEY</li>
+						<li>FOREIGN KEY</li>
+						<li>UNIQUE</li>
+					</ul>
+					<p>La FOREIGN KEY va s'assuer que la valeur indiquée existe dans la table qui est en relation</p>
+				</section>
+				<section>
+					<h4>Et aprés ?????? On en fait quoi de tout ça</h4>
+				</section>
+				<section>
+					<h4>Les jointures</h4>
+					<p>Les jointures vont servir à récuper les données qui ont des relations entre elles </p>
+					<p>Je veux avoir une requête qui me donne tous les clients et leurs adresses associées </p>
+				</section>
+				<section>
+					<h4>INNER JOIN ??? ON ???</h4>
+					<pre>
+						<code class="sql" data-trim >
+							SELECT nom, prenom, email, label, ville,
+							code_postal, pays FROM clients
+							INNER JOIN adresses ON id=user_id;
+						</code>
+					</pre>
+				</section>
+				<section>
+					<h4>Mais comment SQLite va faire pour savoir de quel id on parle ???</h4>
+					<p>Les alias</p>
+				</section>
+				<section>
+					<pre>
+						<code class="sql" data-trim >
+							SELECT c.nom, c.prenom, c.email, a.label, a.ville,
+							a.code_postal, a.pays FROM clients AS c
+							INNER JOIN adresses AS a ON c.id=a.user_id;
+						</code>
+					</pre>
+					<p>Le mot clé AS n'est pas supporté par toutes les bases de données (Oracle)</p>
+					<p>A la place on met un espace</p>
+					<pre>
+						<code class="sql" data-trim >
+							SELECT c.nom, c.prenom, c.email, a.label, a.ville,
+							a.code_postal, a.pays FROM clients c
+							INNER JOIN adresses a ON c.id=a.user_id;
+						</code>
+					</pre>
+				</section>
+				<section>
+					<h4>Comment determiner les champs de la jointure ?</h4>
+					<p>Grace à notre relation table(n) <---- table(1)</p>
+					<pre>
+						<code class="sql" data-trim >
+							SELECT **champs FROM table(n) AS ma_table_n
+							INNER JOIN table(1) AS ma_table_1 ON
+							ma_table_n.ma_primary_key=ma_table_1.ma_foreign_key(table_n);
+						</code>
+					</pre>
+				</section>
+				<section>
+					<h3>Merci !</h3>
+					<p>Des questions ?</p>
+				</section>
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				history: true,
+
+				// More info https://github.com/hakimel/reveal.js#dependencies
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+				]
+			});
+		</script>
+	</body>
+</html>
